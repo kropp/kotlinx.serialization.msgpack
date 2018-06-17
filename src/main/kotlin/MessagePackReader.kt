@@ -31,6 +31,10 @@ class MessagePackOutput(initial: ByteArray = ByteArray(0)) : NamedValueOutput() 
     return this
   }
 
+  override fun writeTaggedString(tag: String, value: String) {
+    bytes += byteArray(0xa0 + tag.length, tag, 0xa0 + value.length, value)
+  }
+
   override fun writeTaggedBoolean(tag: String, value: Boolean) {
     bytes += byteArray(0xa0 + tag.length, tag, if (value) 0xc3 else 0xc2)
   }

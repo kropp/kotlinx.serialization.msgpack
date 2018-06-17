@@ -21,6 +21,23 @@ class MessagePackDemoTest {
     val packed = MessagePack.pack(Demo(true, 0))
     assertThat(packed, IsByteArrayEqual(demoBytes))
   }
+
+  private val helloWorldBytes = byteArray(0x81, 0xa5, 0x68, 0x65, 0x6c, 0x6c, 0x6f, 0xa5, 0x77, 0x6f, 0x72, 0x6c, 0x64)
+
+  @Serializable
+  class HW(val hello: String)
+
+  @Test
+  fun testHelloWorldRead() {
+    val hw = MessagePack.parse<HW>(helloWorldBytes)
+    assertEquals(hw.hello, "world")
+  }
+
+  @Test
+  fun testHelloWorldWrite() {
+    val packed = MessagePack.pack(HW(hello = "world"))
+    assertThat(packed, IsByteArrayEqual(helloWorldBytes))
+  }
 }
 
 class IsByteArrayEqual(private val bytes: ByteArray) : BaseMatcher<ByteArray>() {
