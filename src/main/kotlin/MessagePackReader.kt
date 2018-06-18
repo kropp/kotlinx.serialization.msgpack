@@ -43,6 +43,14 @@ class MessagePackOutput(initial: ByteArray = ByteArray(0)) : NamedValueOutput() 
     bytes += byteArray(0xa0 + tag.length, tag, 0x00)
   }
 
+  override fun writeTaggedFloat(tag: String, value: Float) {
+    bytes += byteArray(0xa0 + tag.length, tag, 0xca) + value.toBits().toByteArray()
+  }
+
+  override fun writeTaggedDouble(tag: String, value: Double) {
+    bytes += byteArray(0xa0 + tag.length, tag, 0xcb) + value.toBits().toByteArray()
+  }
+
   override fun writeTaggedNull(tag: String) {
     bytes += byteArray(0xa0 + tag.length, tag, 0xc0)
   }
@@ -86,6 +94,8 @@ class MessagePackBinaryReader(private val stream: ByteArrayInputStream) {
       0xc0 -> return null
       0xc2 -> return false
       0xc3 -> return true
+      0xca -> return Float.fromBits(stream.readExactNBytes(4).toInt())
+      0xcb -> return Double.fromBits(stream.readExactNBytes(8).toLong())
     }
     if (type and 0xa0 == 0xa0) {
       val length = type - 0xa0
@@ -102,3 +112,22 @@ fun byteArray(vararg data: Any) = data.map { d ->
     else -> ByteArray(0)
   }
 }.fold(ByteArray(0)) { acc, it -> acc + it }
+
+fun Int.toByteArray() = ByteArray(4) { ((this shr (7-it) * 8) and 0xFF).toByte() }
+fun Long.toByteArray() = ByteArray(8) { ((this shr (7-it) * 8) and 0xFF).toByte() }
+
+fun ByteArray.toInt() =
+    (get(0).toInt() and 0xFF shl 24) +
+    (get(1).toInt() and 0xFF shl 16) +
+    (get(2).toInt() and 0xFF shl 8) +
+    (get(3).toInt() and 0xFF)
+
+fun ByteArray.toLong() =
+    (get(0).toLong() and 0xFF shl 56) +
+    (get(1).toLong() and 0xFF shl 48) +
+    (get(2).toLong() and 0xFF shl 40) +
+    (get(3).toLong() and 0xFF shl 32) +
+    (get(4).toLong() and 0xFF shl 24) +
+    (get(5).toLong() and 0xFF shl 16) +
+    (get(6).toLong() and 0xFF shl 8) +
+    (get(7).toLong() and 0xFF)
