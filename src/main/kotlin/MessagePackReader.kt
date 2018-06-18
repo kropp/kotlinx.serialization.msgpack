@@ -42,18 +42,29 @@ class MessagePackOutput(initial: ByteArray = ByteArray(0)) : NamedValueOutput() 
   override fun writeTaggedInt(tag: String, value: Int) {
     bytes += byteArray(0xa0 + tag.length, tag, 0x00)
   }
+
+  override fun writeTaggedNull(tag: String) {
+    bytes += byteArray(0xa0 + tag.length, tag, 0xc0)
+  }
 }
 
 class MessagePackInput(bytes: ByteArray) : NamedValueInput() {
   private val byteStream = ByteArrayInputStream(bytes)
   private val map = mutableMapOf<String,Any>()
+  private val nulls = mutableSetOf<String>()
 
   override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput {
     val reader = MessagePackBinaryReader(byteStream)
 
     val count = byteStream.read() - 0x80
     repeat(count) {
-      map[reader.readString()] = reader.readNext()
+      val name = reader.readString()
+      val value = reader.readNext()
+      if (value != null) {
+        map[name] = value
+      } else {
+        nulls += name
+      }
     }
 
     return this
@@ -62,15 +73,17 @@ class MessagePackInput(bytes: ByteArray) : NamedValueInput() {
   override fun readTaggedValue(tag: String): Any {
     return map[tag]!!
   }
+
+  override fun readTaggedNotNullMark(tag: String) = tag !in nulls
 }
 
 class MessagePackBinaryReader(private val stream: ByteArrayInputStream) {
   fun readString() = readNext() as String
-  fun readNext(): Any {
+  fun readNext(): Any? {
     val type = stream.read()
     when (type) {
       0x00 -> return 0
-      //0xc0 -> return null
+      0xc0 -> return null
       0xc2 -> return false
       0xc3 -> return true
     }
