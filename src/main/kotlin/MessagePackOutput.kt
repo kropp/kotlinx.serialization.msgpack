@@ -39,6 +39,20 @@ class MessagePackOutput(initial: ByteArray = ByteArray(0)) : NamedValueOutput() 
     bytes += byteArray(0xc0)
   }
 
+  override fun writeTaggedValue(tag: String, value: Any) {
+    if (value is ByteArray) {
+      writeString(tag)
+      bytes += when {
+        value.size <   256 -> byteArray(0xc4) + value.size.toByte()
+        value.size < 65536 -> byteArray(0xc5) + value.size.toByteArray().take(2).toByteArray()
+        else               -> byteArray(0xc6) + value.size.toByteArray()
+      }
+      bytes += value
+    } else {
+      super.writeTaggedValue(tag, value)
+    }
+  }
+
   private fun writeString(str: String) {
     val utf8Bytes = str.toUtf8Bytes()
     bytes += when {

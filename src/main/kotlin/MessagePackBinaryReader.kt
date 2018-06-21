@@ -11,6 +11,18 @@ class MessagePackBinaryReader(private val stream: ByteArrayInputStream) {
       0xc0 -> return null
       0xc2 -> return false
       0xc3 -> return true
+      0xc4 -> {
+        val length = stream.readExactNBytes(1)[0].toInt()
+        return stream.readExactNBytes(length)
+      }
+      0xc5 -> {
+        val length = stream.readExactNBytes(2).toShort()
+        return stream.readExactNBytes(length)
+      }
+      0xc6 -> {
+        val length = stream.readExactNBytes(4).toInt()
+        return stream.readExactNBytes(length)
+      }
       0xca -> return Float.fromBits(stream.readExactNBytes(4).toInt())
       0xcb -> return Double.fromBits(stream.readExactNBytes(8).toLong())
       0xd9 -> {
