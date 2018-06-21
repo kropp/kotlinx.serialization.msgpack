@@ -25,6 +25,14 @@ class MessagePackBinaryReader(private val stream: ByteArrayInputStream) {
       }
       0xca -> return Float.fromBits(stream.readExactNBytes(4).toInt())
       0xcb -> return Double.fromBits(stream.readExactNBytes(8).toLong())
+      0xcc -> return stream.readExactNBytes(1)[0].toInt()
+      0xcd -> return stream.readExactNBytes(2).toShort()
+      0xce -> return stream.readExactNBytes(4).toInt()
+      0xcf -> return stream.readExactNBytes(8).toLong()
+      0xd0 -> return stream.readExactNBytes(1)[0].toInt()
+      0xd1 -> return stream.readExactNBytes(2).toShort()
+      0xd2 -> return stream.readExactNBytes(4).toInt()
+      0xd3 -> return stream.readExactNBytes(8).toLong()
       0xd9 -> {
         val length = stream.readExactNBytes(1)[0].toInt()
         return String(stream.readExactNBytes(length))
@@ -38,11 +46,15 @@ class MessagePackBinaryReader(private val stream: ByteArrayInputStream) {
         return String(stream.readExactNBytes(length))
       }
     }
-    if (type and 0xa0 == 0xa0) {
-      val length = type - 0xa0
-      return String(stream.readExactNBytes(length))
+    return when {
+      type or 0b01111111 == 0b01111111 -> type
+      type and 0b11100000 == 0b11100000 -> type
+      type and 0xa0 == 0xa0 -> {
+        val length = type - 0xa0
+        String(stream.readExactNBytes(length))
+      }
+      else -> throw IllegalStateException("Unexpected byte ${type.toString(16)}")
     }
-    throw IllegalStateException("Unexpected byte ${type.toString(16)}")
   }
 }
 

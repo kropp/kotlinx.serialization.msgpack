@@ -27,5 +27,25 @@ class MessagePackInput(bytes: ByteArray) : NamedValueInput() {
     return map[tag]!!
   }
 
+  override fun readTaggedByte(tag: String): Byte {
+    val v = readTaggedValue(tag)
+    return when (v) {
+      is Byte -> v
+      is Int -> v.toByte()
+      is Long -> v.toByte()
+      else -> v as Byte
+    }
+  }
+
+  override fun readTaggedLong(tag: String): Long {
+    val v = readTaggedValue(tag)
+    return when (v) {
+      is Byte -> v.toLong()
+      is Int -> v.toLong()
+      is Long -> v
+      else -> v as Long
+    }
+  }
+
   override fun readTaggedNotNullMark(tag: String) = tag !in nulls
 }

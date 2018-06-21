@@ -19,9 +19,19 @@ class MessagePackOutput(initial: ByteArray = ByteArray(0)) : NamedValueOutput() 
     bytes += byteArray(if (value) 0xc3 else 0xc2)
   }
 
+  override fun writeTaggedByte(tag: String, value: Byte) {
+    writeString(tag)
+    bytes += ByteArray(1) { value }
+  }
+
   override fun writeTaggedInt(tag: String, value: Int) {
     writeString(tag)
-    bytes += byteArray(0x00)
+    bytes += ByteArray(1) { value.toByteArray()[3] }
+  }
+
+  override fun writeTaggedLong(tag: String, value: Long) {
+    writeString(tag)
+    bytes += ByteArray(1) { value.toByteArray()[7] }
   }
 
   override fun writeTaggedFloat(tag: String, value: Float) {
