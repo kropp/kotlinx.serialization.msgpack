@@ -25,13 +25,17 @@ class MessagePackOutput(initial: ByteArray = ByteArray(0)) : NamedValueOutput() 
   }
 
   override fun writeTaggedInt(tag: String, value: Int) {
+    if (value <= Byte.MAX_VALUE) return writeTaggedByte(tag, value.toByte())
     writeString(tag)
-    bytes += ByteArray(1) { value.toByteArray()[3] }
+    bytes += value.toByteArray()
   }
 
   override fun writeTaggedLong(tag: String, value: Long) {
+    if (value <= Byte.MAX_VALUE) return writeTaggedByte(tag, value.toByte())
+    if (value <= Int.MAX_VALUE) return writeTaggedInt(tag, value.toInt())
     writeString(tag)
-    bytes += ByteArray(1) { value.toByteArray()[7] }
+    bytes += byteArray(0xd3)
+    bytes += value.toByteArray()
   }
 
   override fun writeTaggedFloat(tag: String, value: Float) {
