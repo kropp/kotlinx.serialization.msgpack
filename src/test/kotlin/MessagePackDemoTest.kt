@@ -1,5 +1,4 @@
 import kotlinx.serialization.*
-import org.hamcrest.*
 import org.junit.*
 import org.junit.Assert.*
 
@@ -40,21 +39,3 @@ class MessagePackDemoTest {
   }
 }
 
-class IsByteArrayEqual(private val bytes: ByteArray) : BaseMatcher<ByteArray>() {
-  override fun describeTo(description: Description) {
-    description.appendText("    " + bytes.contentToString())
-  }
-
-  override fun describeMismatch(item: Any?, description: Description) {
-    if (item is ByteArray) {
-      description.appendText("was " + item.contentToString())
-    } else {
-      super.describeMismatch(item, description)
-    }
-  }
-
-  override fun matches(item: Any?): Boolean {
-    val other = item as? ByteArray ?: return false
-    return bytes.contentEquals(other)
-  }
-}
