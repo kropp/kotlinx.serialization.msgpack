@@ -49,5 +49,9 @@ class MessagePackInput(bytes: ByteArray) : TaggedDecoder<String>() {
     }
   }
 
+  override fun decodeCollectionSize(desc: SerialDescriptor): Int {
+    return (decodeTaggedValue(currentTag) as? Array<*>)?.size ?: 0
+  }
+
   override fun decodeTaggedNotNullMark(tag: String) = tag !in nulls
 }

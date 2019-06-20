@@ -64,6 +64,12 @@ class MessagePackBinaryReader(private val stream: ByteArrayInputStream) {
         val length = type - 0xa0
         String(stream.readExactNBytes(length))
       }
+      type and 0x90 == 0x90 -> {
+        val size = type - 0x90
+        Array(size) {
+          readNext()
+        }
+      }
       else -> throw IllegalStateException("Unexpected byte ${type.toString(16)}")
     }
   }

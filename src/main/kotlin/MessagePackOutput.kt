@@ -14,6 +14,13 @@ class MessagePackOutput(initial: ByteArray = ByteArray(0)) : TaggedEncoder<Strin
     return this
   }
 
+  override fun beginCollection(desc: SerialDescriptor, collectionSize: Int, vararg typeParams: KSerializer<*>): CompositeEncoder {
+    kind = desc.kind
+    writeString(currentTag)
+    bytes += byteArray(0x90 + collectionSize)
+    return this
+  }
+
   override fun encodeTaggedString(tag: String, value: String) {
     writeString(tag)
     writeString(value)
