@@ -1,12 +1,14 @@
 import kotlinx.serialization.*
 import java.io.*
 
-class MessagePackInput(bytes: ByteArray) : NamedValueInput() {
+class MessagePackInput(bytes: ByteArray) : TaggedDecoder<String>() {
+  override fun SerialDescriptor.getTag(index: Int) = getElementAnnotations(index).filterIsInstance<SerialTag>().firstOrNull()?.tag ?: getElementName(index)
+
   private val byteStream = ByteArrayInputStream(bytes)
   private val map = mutableMapOf<String,Any>()
   private val nulls = mutableSetOf<String>()
 
-  override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput {
+  override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
     val reader = MessagePackBinaryReader(byteStream)
 
     val count = byteStream.read() - 0x80
@@ -23,12 +25,12 @@ class MessagePackInput(bytes: ByteArray) : NamedValueInput() {
     return this
   }
 
-  override fun readTaggedValue(tag: String): Any {
+  override fun decodeTaggedValue(tag: String): Any {
     return map[tag]!!
   }
 
-  override fun readTaggedByte(tag: String): Byte {
-    val v = readTaggedValue(tag)
+  override fun decodeTaggedByte(tag: String): Byte {
+    val v = decodeTaggedValue(tag)
     return when (v) {
       is Byte -> v
       is Int -> v.toByte()
@@ -37,8 +39,8 @@ class MessagePackInput(bytes: ByteArray) : NamedValueInput() {
     }
   }
 
-  override fun readTaggedLong(tag: String): Long {
-    val v = readTaggedValue(tag)
+  override fun decodeTaggedLong(tag: String): Long {
+    val v = decodeTaggedValue(tag)
     return when (v) {
       is Byte -> v.toLong()
       is Int -> v.toLong()
@@ -47,5 +49,5 @@ class MessagePackInput(bytes: ByteArray) : NamedValueInput() {
     }
   }
 
-  override fun readTaggedNotNullMark(tag: String) = tag !in nulls
+  override fun decodeTaggedNotNullMark(tag: String) = tag !in nulls
 }

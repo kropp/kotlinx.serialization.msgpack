@@ -1,21 +1,22 @@
 import kotlinx.serialization.*
 
 class MessagePack {
-  fun <T> parse(bytes: ByteArray, serial: KSerialLoader<T>): T {
-    return serial.load(MessagePackInput(bytes))
+  fun <T> parse(bytes: ByteArray, serial: DeserializationStrategy<T>): T {
+    return serial.deserialize(MessagePackInput(bytes))
   }
 
-  fun <T> pack(obj: T, serial: KSerialSaver<T>): ByteArray {
+  fun <T> pack(obj: T, serial: SerializationStrategy<T>): ByteArray {
     val output = MessagePackOutput()
-    serial.save(output, obj)
+    serial.serialize(output, obj)
     return output.bytes
   }
 
+  @ImplicitReflectionSerializer
   companion object {
-    fun <T> parse(bytes: ByteArray, serial: KSerialLoader<T>) = MessagePack().parse(bytes, serial)
+    fun <T> parse(bytes: ByteArray, serial: DeserializationStrategy<T>) = MessagePack().parse(bytes, serial)
     inline fun <reified T : Any> parse(bytes: ByteArray) = MessagePack().parse(bytes, T::class.serializer())
 
-    fun <T> pack(obj: T, serial: KSerialSaver<T>): ByteArray = MessagePack().pack(obj, serial)
+    fun <T> pack(obj: T, serial: SerializationStrategy<T>): ByteArray = MessagePack().pack(obj, serial)
     inline fun <reified T : Any> pack(obj: T): ByteArray = MessagePack().pack(obj, T::class.serializer())
   }
 }

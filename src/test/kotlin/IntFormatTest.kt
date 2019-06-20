@@ -1,7 +1,8 @@
-import kotlinx.serialization.Serializable
+import kotlinx.serialization.*
 import org.junit.*
 import org.junit.Assert.*
 
+@ImplicitReflectionSerializer
 class IntFormatTest {
   @Serializable class B(val v: Byte)
   @Serializable class I(val v: Int)

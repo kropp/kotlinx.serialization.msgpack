@@ -1,7 +1,8 @@
-import kotlinx.serialization.Serializable
+import kotlinx.serialization.*
 import org.junit.*
 import org.junit.Assert.*
 
+@ImplicitReflectionSerializer
 class StringFormatTest {
   @Serializable
   data class D(val a: String)

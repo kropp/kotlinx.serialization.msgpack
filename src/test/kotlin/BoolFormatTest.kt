@@ -1,6 +1,7 @@
-import kotlinx.serialization.Serializable
+import kotlinx.serialization.*
 import org.junit.*
 
+@ImplicitReflectionSerializer
 class BoolFormatTest {
   private val bytes = byteArray(0x82, 0xa4, 0x74, 0x72, 0x75, 0x65, 0xc3, 0xa5, 0x66, 0x61, 0x6c, 0x73, 0x65, 0xc2)
 

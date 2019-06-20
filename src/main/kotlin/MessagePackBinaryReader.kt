@@ -1,6 +1,17 @@
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.*
 import java.io.*
+
+// from kotlinx.serialization.internal
+internal fun InputStream.readExactNBytes(bytes: Int): ByteArray {
+  val array = ByteArray(bytes)
+  var read = 0
+  while (read < bytes) {
+    val i = this.read(array, read, bytes - read)
+    if (i == -1) throw IOException("Unexpected EOF")
+    read += i
+  }
+  return array
+}
 
 class MessagePackBinaryReader(private val stream: ByteArrayInputStream) {
   fun readString() = readNext() as String

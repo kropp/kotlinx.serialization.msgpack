@@ -18,5 +18,12 @@ class IsByteArrayEqual(private val bytes: ByteArray) : BaseMatcher<ByteArray>() 
     return bytes.contentEquals(other)
   }
 
-  private fun ByteArray.hexString() = joinToString(", ") { "0x${Integer.toHexString((it.toInt() and 0xFF))}" }
+  private fun ByteArray.hexString() = joinToString(", ") {
+    val char = it.toChar()
+    if (char in 'a'..'z' || char in 'A'..'Z' || char in '0'..'9') {
+      "$char"
+    } else {
+      "0x${Integer.toHexString((it.toInt() and 0xFF))}"
+    }
+  }
 }

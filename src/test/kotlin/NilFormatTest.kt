@@ -1,6 +1,7 @@
-import kotlinx.serialization.Serializable
+import kotlinx.serialization.*
 import org.junit.*
 
+@ImplicitReflectionSerializer
 class NilFormatTest {
   private val bytes = byteArray(0x81, 0xa3, 0x6e, 0x69, 0x6c, 0xc0)
 

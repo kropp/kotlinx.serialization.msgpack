@@ -1,7 +1,9 @@
-import kotlinx.serialization.Serializable
+import kotlinx.serialization.*
 import org.junit.*
 import org.junit.Assert.*
 
+/*
+@ImplicitReflectionSerializer
 class BinaryFormatTest {
   @Serializable class Bin(val v: ByteArray)
 
@@ -25,3 +27,4 @@ class BinaryFormatTest {
     assertThat(MessagePack.parse<Bin>(byteArray(0x81, 0xa1, 0x76, 0xc6, 0x00, 0x00, 0x00, 0x02) + payload).v, IsByteArrayEqual(payload))
   }
 }
+*/

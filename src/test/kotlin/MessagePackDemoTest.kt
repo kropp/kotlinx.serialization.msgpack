@@ -2,6 +2,7 @@ import kotlinx.serialization.*
 import org.junit.*
 import org.junit.Assert.*
 
+@ImplicitReflectionSerializer
 class MessagePackDemoTest {
   @Serializable
   data class Demo(val compact: Boolean, val schema: Int)
