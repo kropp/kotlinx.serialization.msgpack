@@ -3,7 +3,6 @@ import kotlinx.serialization.builtins.*
 import java.io.*
 
 class MessagePackInput(private val input: InputStream) : AbstractDecoder() {
-  private val reader = MessagePackBinaryReader(input)
   private var count: Int = 0
   private var left: Int = 0
   private var kind: StructureKind = StructureKind.CLASS
@@ -27,7 +26,7 @@ class MessagePackInput(private val input: InputStream) : AbstractDecoder() {
   }
 
   override fun decodeValue(): Any {
-    return reader.readNext()!!
+    return readNext()!!
   }
 
   override fun decodeByte(): Byte {
@@ -60,7 +59,7 @@ class MessagePackInput(private val input: InputStream) : AbstractDecoder() {
     if (descriptor.kind == StructureKind.LIST || descriptor.kind == StructureKind.MAP) {
       return count - left - 1
     }
-    val name = reader.readString()
+    val name = readNext() as String
     return descriptor.getElementIndex(name)
   }
 
@@ -69,5 +68,64 @@ class MessagePackInput(private val input: InputStream) : AbstractDecoder() {
     val peek = input.read()
     input.reset()
     return peek != 0xc0
+  }
+
+  private fun readNext(): Any? {
+    val type = input.read()
+    when (type) {
+      0x00 -> return 0
+      0xc0 -> return null
+      0xc2 -> return false
+      0xc3 -> return true
+      0xc4 -> {
+        val length = input.readExactNBytes(1)[0].toInt()
+        return input.readExactNBytes(length)
+      }
+      0xc5 -> {
+        val length = input.readExactNBytes(2).toShort()
+        return input.readExactNBytes(length)
+      }
+      0xc6 -> {
+        val length = input.readExactNBytes(4).toInt()
+        return input.readExactNBytes(length)
+      }
+      0xca -> return Float.fromBits(input.readExactNBytes(4).toInt())
+      0xcb -> return Double.fromBits(input.readExactNBytes(8).toLong())
+      0xcc -> return input.readExactNBytes(1)[0].toInt()
+      0xcd -> return input.readExactNBytes(2).toShort()
+      0xce -> return input.readExactNBytes(4).toInt()
+      0xcf -> return input.readExactNBytes(8).toLong()
+      0xd0 -> return input.readExactNBytes(1)[0].toInt()
+      0xd1 -> return input.readExactNBytes(2).toShort()
+      0xd2 -> return input.readExactNBytes(4).toInt()
+      0xd3 -> return input.readExactNBytes(8).toLong()
+      0xd9 -> {
+        val length = input.readExactNBytes(1)[0].toInt()
+        return String(input.readExactNBytes(length))
+      }
+      0xda -> {
+        val length = input.readExactNBytes(2).toShort()
+        return String(input.readExactNBytes(length))
+      }
+      0xdb -> {
+        val length = input.readExactNBytes(4).toInt()
+        return String(input.readExactNBytes(length))
+      }
+    }
+    return when {
+      type or 0b01111111 == 0b01111111 -> type
+      type and 0b11100000 == 0b11100000 -> type
+      type and 0xa0 == 0xa0 -> {
+        val length = type - 0xa0
+        String(input.readExactNBytes(length))
+      }
+      type and 0x90 == 0x90 -> {
+        val size = type - 0x90
+        Array(size) {
+          readNext()
+        }
+      }
+      else -> throw IllegalStateException("Unexpected byte ${type.toString(16)}")
+    }
   }
 }
