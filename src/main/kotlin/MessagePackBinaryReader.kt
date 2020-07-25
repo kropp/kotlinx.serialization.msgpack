@@ -13,7 +13,7 @@ internal fun InputStream.readExactNBytes(bytes: Int): ByteArray {
   return array
 }
 
-class MessagePackBinaryReader(private val stream: ByteArrayInputStream) {
+class MessagePackBinaryReader(private val stream: InputStream) {
   fun readString() = readNext() as String
   fun readNext(): Any? {
     val type = stream.read()

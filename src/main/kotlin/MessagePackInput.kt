@@ -1,36 +1,32 @@
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import java.io.*
 
-class MessagePackInput(bytes: ByteArray) : TaggedDecoder<String>() {
-  override fun SerialDescriptor.getTag(index: Int) = getElementAnnotations(index).filterIsInstance<SerialTag>().firstOrNull()?.tag ?: getElementName(index)
+class MessagePackInput(private val input: InputStream) : AbstractDecoder() {
+  private val reader = MessagePackBinaryReader(input)
+  private var count: Int = 0
+  private var left: Int = 0
+  private var kind: StructureKind = StructureKind.CLASS
 
-  private val byteStream = ByteArrayInputStream(bytes)
-  private val map = mutableMapOf<String,Any>()
-  private val nulls = mutableSetOf<String>()
-
-  override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
-    val reader = MessagePackBinaryReader(byteStream)
-
-    val count = byteStream.read() - 0x80
-    repeat(count) {
-      val name = reader.readString()
-      val value = reader.readNext()
-      if (value != null) {
-        map[name] = value
-      } else {
-        nulls += name
+  override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
+    val type = input.read()
+    when {
+      type and 0x90 == 0x90 -> {
+        kind = StructureKind.LIST
+        count = type - 0x90
       }
+      type and 0x80 == 0x80 -> count = type - 0x80
     }
-
+    left = count
     return this
   }
 
-  override fun decodeTaggedValue(tag: String): Any {
-    return map[tag]!!
+  override fun decodeValue(): Any {
+    return reader.readNext()!!
   }
 
-  override fun decodeTaggedByte(tag: String): Byte {
-    val v = decodeTaggedValue(tag)
+  override fun decodeByte(): Byte {
+    val v = decodeValue()
     return when (v) {
       is Byte -> v
       is Int -> v.toByte()
@@ -39,8 +35,8 @@ class MessagePackInput(bytes: ByteArray) : TaggedDecoder<String>() {
     }
   }
 
-  override fun decodeTaggedLong(tag: String): Long {
-    val v = decodeTaggedValue(tag)
+  override fun decodeLong(): Long {
+    val v = decodeValue()
     return when (v) {
       is Byte -> v.toLong()
       is Int -> v.toLong()
@@ -49,9 +45,24 @@ class MessagePackInput(bytes: ByteArray) : TaggedDecoder<String>() {
     }
   }
 
-  override fun decodeCollectionSize(desc: SerialDescriptor): Int {
-    return (decodeTaggedValue(currentTag) as? Array<*>)?.size ?: 0
+  override fun decodeCollectionSize(descriptor: SerialDescriptor): Int {
+    return count
   }
 
-  override fun decodeTaggedNotNullMark(tag: String) = tag !in nulls
+  override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
+    if (left <= 0) return CompositeDecoder.READ_DONE
+    left--
+    if (kind == StructureKind.LIST) {
+      return count - left - 1
+    }
+    val name = reader.readString()
+    return descriptor.getElementIndex(name)
+  }
+
+  override fun decodeNotNullMark(): Boolean {
+    input.mark(1)
+    val peek = input.read()
+    input.reset()
+    return peek != 0xc0
+  }
 }

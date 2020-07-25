@@ -1,8 +1,9 @@
 import kotlinx.serialization.*
+import java.io.*
 
 class MessagePack {
   fun <T> parse(bytes: ByteArray, serial: DeserializationStrategy<T>): T {
-    return serial.deserialize(MessagePackInput(bytes))
+    return serial.deserialize(MessagePackInput(ByteArrayInputStream(bytes)))
   }
 
   fun <T> pack(obj: T, serial: SerializationStrategy<T>): ByteArray {
