@@ -2,7 +2,6 @@ import kotlinx.serialization.*
 import org.junit.*
 import org.junit.Assert.*
 
-@ImplicitReflectionSerializer
 class MessagePackDemoTest {
   @Serializable
   data class Demo(val compact: Boolean, val schema: Int)
@@ -11,14 +10,14 @@ class MessagePackDemoTest {
 
   @Test
   fun testMsgPackDeserialization() {
-    val demo = MessagePack.parse<Demo>(demoBytes)
+    val demo = MessagePack.parse(Demo.serializer(), demoBytes)
     assertEquals(demo.compact, true)
     assertEquals(demo.schema, 0)
   }
 
   @Test
   fun testMsgPackSerialization() {
-    val packed = MessagePack.pack(Demo(true, 0))
+    val packed = MessagePack.pack(Demo.serializer(), Demo(true, 0))
     assertThat(packed, IsByteArrayEqual(demoBytes))
   }
 
@@ -29,13 +28,13 @@ class MessagePackDemoTest {
 
   @Test
   fun testHelloWorldRead() {
-    val hw = MessagePack.parse<HW>(helloWorldBytes)
+    val hw = MessagePack.parse<HW>(HW.serializer(), helloWorldBytes)
     assertEquals(hw.hello, "world")
   }
 
   @Test
   fun testHelloWorldWrite() {
-    val packed = MessagePack.pack(HW(hello = "world"))
+    val packed = MessagePack.pack(HW.serializer(), HW(hello = "world"))
     assertThat(packed, IsByteArrayEqual(helloWorldBytes))
   }
 }
