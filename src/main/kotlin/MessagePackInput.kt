@@ -17,6 +17,11 @@ class MessagePackInput(private val input: InputStream) : AbstractDecoder() {
       }
       type and 0x80 == 0x80 -> count = type - 0x80
     }
+    if (descriptor.kind == StructureKind.MAP) {
+      // map like structures stored as key-value pairs,
+      // so each entry is decoded as two consecutive elements
+      count *= 2
+    }
     left = count
     return this
   }
@@ -52,7 +57,7 @@ class MessagePackInput(private val input: InputStream) : AbstractDecoder() {
   override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
     if (left <= 0) return CompositeDecoder.READ_DONE
     left--
-    if (kind == StructureKind.LIST) {
+    if (descriptor.kind == StructureKind.LIST || descriptor.kind == StructureKind.MAP) {
       return count - left - 1
     }
     val name = reader.readString()
