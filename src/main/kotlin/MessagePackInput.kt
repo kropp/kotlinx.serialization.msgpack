@@ -10,6 +10,14 @@ class MessagePackInput(private val input: InputStream) : AbstractDecoder() {
   override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
     val type = input.read()
     when {
+      type == 0xdc -> {
+        kind = StructureKind.LIST
+        count = input.readExactNBytes(2).toShort()
+      }
+      type == 0xdd -> {
+        kind = StructureKind.LIST
+        count = input.readExactNBytes(4).toInt()
+      }
       type and 0x90 == 0x90 -> {
         kind = StructureKind.LIST
         count = type - 0x90
@@ -121,9 +129,7 @@ class MessagePackInput(private val input: InputStream) : AbstractDecoder() {
       }
       type and 0x90 == 0x90 -> {
         val size = type - 0x90
-        Array(size) {
-          readNext()
-        }
+        Array(size) { readNext() }
       }
       else -> throw IllegalStateException("Unexpected byte ${type.toString(16)}")
     }

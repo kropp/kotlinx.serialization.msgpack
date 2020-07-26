@@ -20,8 +20,22 @@ class MessagePackOutput(initial: ByteArray = ByteArray(0)) : AbstractEncoder() {
   override fun endStructure(descriptor: SerialDescriptor) {}
 
   override fun beginCollection(descriptor: SerialDescriptor, collectionSize: Int, vararg typeSerializers: KSerializer<*>): CompositeEncoder {
-    val baseType = if (descriptor.kind == StructureKind.MAP) 0x80 else 0x90
-    bytes += byteArray(baseType + collectionSize)
+    bytes += when (descriptor.kind) {
+      StructureKind.MAP -> byteArray(0x80 + collectionSize)
+      StructureKind.LIST -> if (collectionSize < 16) {
+        byteArray(0x90 + collectionSize)
+      } else if (collectionSize < 256) {
+        byteArray(0xdc, 0, collectionSize)
+      } else if (collectionSize < 65536) {
+        byteArray(0xdc) + collectionSize.toByteArray().take(2).toByteArray()
+      } else if (collectionSize < 16777216) {
+        byteArray(0xdd, 0) + collectionSize.toByteArray().take(3).toByteArray()
+      } else {
+        byteArray(0xdd) + collectionSize.toByteArray().take(4).toByteArray()
+      }
+      else -> byteArray()
+    }
+
     return this
   }
 
