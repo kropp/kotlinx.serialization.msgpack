@@ -1,13 +1,12 @@
 import kotlinx.serialization.builtins.*
-import org.junit.*
-import org.junit.Assert.*
+import kotlin.test.*
 
 class StringFormatTest {
   @Test
   fun shortString() {
     val bytes = byteArray(0xa1, 0x61)
 
-    assertThat(MessagePack.pack(String.serializer(), "a"), IsByteArrayEqual(bytes))
+    assertByteArrayEquals(bytes, MessagePack.pack(String.serializer(), "a"))
 
     assertEquals("a", MessagePack.parse(String.serializer(), bytes))
     assertEquals("a", MessagePack.parse(String.serializer(), byteArray(0xd9, 0x01, 0x61)))
@@ -20,7 +19,7 @@ class StringFormatTest {
     val bytes = byteArray(0xd9, 0x20, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30, 0x31, 0x32)
 
     val str = "12345678901234567890123456789012"
-    assertThat(MessagePack.pack(String.serializer(), str), IsByteArrayEqual(bytes))
+    assertByteArrayEquals(bytes, MessagePack.pack(String.serializer(), str))
 
     assertEquals(str, MessagePack.parse(String.serializer(), bytes))
     assertEquals(str, MessagePack.parse(String.serializer(), byteArray(0xda, 0x00, 0x20, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30, 0x31, 0x32)))
@@ -33,8 +32,8 @@ class StringFormatTest {
     val hiragana = "ひらがな"
     val hiraganaBytes = byteArray(0xac, 0xe3, 0x81, 0xb2, 0xe3, 0x82, 0x89, 0xe3, 0x81, 0x8c, 0xe3, 0x81, 0xaa)
 
-    assertThat(MessagePack.pack(String.serializer(), cyrillic), IsByteArrayEqual(cyrillicBytes))
-    assertThat(MessagePack.pack(String.serializer(), hiragana), IsByteArrayEqual(hiraganaBytes))
+    assertByteArrayEquals(cyrillicBytes, MessagePack.pack(String.serializer(), cyrillic))
+    assertByteArrayEquals(hiraganaBytes, MessagePack.pack(String.serializer(), hiragana))
 
     assertEquals(cyrillic, MessagePack.parse(String.serializer(), cyrillicBytes))
     assertEquals(hiragana, MessagePack.parse(String.serializer(), hiraganaBytes))
@@ -44,7 +43,7 @@ class StringFormatTest {
   fun emoji() {
     val bytes = byteArray(0xa4, 0xf0, 0x9f, 0x8d, 0xba)
 
-    assertThat(MessagePack.pack(String.serializer(), "\uD83C\uDF7A"), IsByteArrayEqual(bytes))
+    assertByteArrayEquals(bytes, MessagePack.pack(String.serializer(), "\uD83C\uDF7A"))
 
     assertEquals("\uD83C\uDF7A", MessagePack.parse(String.serializer(), bytes))
   }

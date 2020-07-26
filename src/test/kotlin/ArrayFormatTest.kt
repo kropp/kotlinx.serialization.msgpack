@@ -1,6 +1,5 @@
 import kotlinx.serialization.*
-import org.junit.*
-import org.junit.Assert.*
+import kotlin.test.*
 
 class ArrayFormatTest {
   @Serializable class A(val v: Array<Int>)
@@ -25,7 +24,7 @@ class ArrayFormatTest {
 
   private fun assertArrayEncodeDecode(arr: Array<Int>, bytes: ByteArray) {
     val encoded = byteArray(0x81, 0xa1, 0x76) + bytes
-    assertThat(MessagePack.pack(A.serializer(), A(arr)), IsByteArrayEqual(encoded))
-    assertArrayEquals(arr, MessagePack.parse(A.serializer(), encoded).v)
+    assertByteArrayEquals(encoded, MessagePack.pack(A.serializer(), A(arr)))
+    assertTrue(arr.contentEquals(MessagePack.parse(A.serializer(), encoded).v))
   }
 }

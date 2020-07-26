@@ -1,5 +1,5 @@
 import kotlinx.serialization.*
-import org.junit.*
+import kotlin.test.*
 
 private const val epsilon = 0.0000001
 
@@ -15,15 +15,15 @@ class FloatFormatTest {
     val p = MessagePack.parse(FD.serializer(), plusBytes)
     val m = MessagePack.parse(FD.serializer(), minusBytes)
 
-    Assert.assertEquals(0.5f, p.float)
-    Assert.assertEquals(0.5, p.double, epsilon)
-    Assert.assertEquals(-0.5f, m.float)
-    Assert.assertEquals(-0.5, m.double, epsilon)
+    assertEquals(0.5f, p.float)
+    assertDoubleEquals(0.5, p.double, epsilon)
+    assertEquals(-0.5f, m.float)
+    assertDoubleEquals(-0.5, m.double, epsilon)
   }
 
   @Test
   fun testWrite() {
-    Assert.assertThat(MessagePack.pack(FD.serializer(), FD(0.5f, 0.5)), IsByteArrayEqual(plusBytes))
-    Assert.assertThat(MessagePack.pack(FD.serializer(), FD(-0.5f, -0.5)), IsByteArrayEqual(minusBytes))
+    assertByteArrayEquals(plusBytes, MessagePack.pack(FD.serializer(), FD(0.5f, 0.5)))
+    assertByteArrayEquals(minusBytes, MessagePack.pack(FD.serializer(), FD(-0.5f, -0.5)))
   }
 }

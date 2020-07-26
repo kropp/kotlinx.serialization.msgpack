@@ -1,6 +1,5 @@
 import kotlinx.serialization.*
-import org.junit.*
-import org.junit.Assert.*
+import kotlin.test.*
 
 class IntFormatTest {
   @Serializable class B(val v: Byte)
@@ -12,9 +11,9 @@ class IntFormatTest {
   fun zero() {
     val bytes = byteArray(0x81, 0xa1, 0x76, 0x00)
 
-    assertThat(MessagePack.pack(B.serializer(), B(0)), IsByteArrayEqual(bytes))
-    assertThat(MessagePack.pack(I.serializer(), I(0)), IsByteArrayEqual(bytes))
-    assertThat(MessagePack.pack(L.serializer(), L(0)), IsByteArrayEqual(bytes))
+    assertByteArrayEquals(bytes, MessagePack.pack(B.serializer(), B(0)))
+    assertByteArrayEquals(bytes, MessagePack.pack(I.serializer(), I(0)))
+    assertByteArrayEquals(bytes, MessagePack.pack(L.serializer(), L(0)))
 
     assertEquals(0.toByte(), MessagePack.parse(B.serializer(), bytes).v)
     assertEquals(0         , MessagePack.parse(I.serializer(), bytes).v)
@@ -25,9 +24,9 @@ class IntFormatTest {
   fun one() {
     val bytes = byteArray(0x81, 0xa1, 0x76, 0x01)
 
-    assertThat(MessagePack.pack(B.serializer(), B(1)), IsByteArrayEqual(bytes))
-    assertThat(MessagePack.pack(I.serializer(), I(1)), IsByteArrayEqual(bytes))
-    assertThat(MessagePack.pack(L.serializer(), L(1)), IsByteArrayEqual(bytes))
+    assertByteArrayEquals(bytes, MessagePack.pack(B.serializer(), B(1)))
+    assertByteArrayEquals(bytes, MessagePack.pack(I.serializer(), I(1)))
+    assertByteArrayEquals(bytes, MessagePack.pack(L.serializer(), L(1)))
 
     assertEquals(1, MessagePack.parse(I.serializer(), bytes).v)
     assertEquals(1, MessagePack.parse(I.serializer(), byteArray(0x81, 0xa1, 0x76, 0xcc, 0x01)).v)
@@ -45,7 +44,7 @@ class IntFormatTest {
   fun intMaxValue() {
     val bytes = byteArray(0x81, 0xa1, 0x76, 0xd3, 0x00, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00)
 
-    assertThat(MessagePack.pack(L.serializer(), L(2147483648)), IsByteArrayEqual(bytes))
+    assertByteArrayEquals(bytes, MessagePack.pack(L.serializer(), L(2147483648)))
 
     assertEquals(2147483648, MessagePack.parse(L.serializer(), bytes).v)
 //    assertEquals(2147483648, MessagePack.parse(L.serializer(), byteArray(0x81, 0xa1, 0x76, 0xce, 0x80, 0x00, 0x00, 0x00)).v)

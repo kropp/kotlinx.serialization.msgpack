@@ -1,6 +1,5 @@
 import kotlinx.serialization.*
-import org.junit.*
-import org.junit.Assert.*
+import kotlin.test.*
 
 class MessagePackDemoTest {
   @Serializable
@@ -18,7 +17,7 @@ class MessagePackDemoTest {
   @Test
   fun testMsgPackSerialization() {
     val packed = MessagePack.pack(Demo.serializer(), Demo(true, 0))
-    assertThat(packed, IsByteArrayEqual(demoBytes))
+    assertByteArrayEquals(demoBytes, packed)
   }
 
   private val helloWorldBytes = byteArray(0x81, 0xa5, 0x68, 0x65, 0x6c, 0x6c, 0x6f, 0xa5, 0x77, 0x6f, 0x72, 0x6c, 0x64)
@@ -28,14 +27,14 @@ class MessagePackDemoTest {
 
   @Test
   fun testHelloWorldRead() {
-    val hw = MessagePack.parse<HW>(HW.serializer(), helloWorldBytes)
+    val hw = MessagePack.parse(HW.serializer(), helloWorldBytes)
     assertEquals(hw.hello, "world")
   }
 
   @Test
   fun testHelloWorldWrite() {
     val packed = MessagePack.pack(HW.serializer(), HW(hello = "world"))
-    assertThat(packed, IsByteArrayEqual(helloWorldBytes))
+    assertByteArrayEquals(helloWorldBytes, packed)
   }
 }
 

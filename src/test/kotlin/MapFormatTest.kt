@@ -1,6 +1,5 @@
 import kotlinx.serialization.*
-import org.junit.*
-import org.junit.Assert.*
+import kotlin.test.*
 
 class MapFormatTest {
   @Serializable class M(val v: Map<String, Boolean>)
@@ -9,7 +8,7 @@ class MapFormatTest {
   fun empty() {
     val bytes = byteArray(0x81, 0xa1, 0x76, 0x80)
 
-    assertThat(MessagePack.pack(M.serializer(), M(emptyMap())), IsByteArrayEqual(bytes))
+    assertByteArrayEquals(bytes, MessagePack.pack(M.serializer(), M(emptyMap())))
 
     assertEquals(0, MessagePack.parse(M.serializer(), bytes).v.size)
   }
@@ -18,7 +17,7 @@ class MapFormatTest {
   fun items() {
     val bytes = byteArray(0x81, 0xa1, 0x76, 0x82, 0xa1, 0x61, 0xc3, 0xa1, 0x62, 0xc2)
 
-    assertThat(MessagePack.pack(M.serializer(), M(mapOf("a" to true, "b" to false))), IsByteArrayEqual(bytes))
+    assertByteArrayEquals(bytes, MessagePack.pack(M.serializer(), M(mapOf("a" to true, "b" to false))))
 
     val map = MessagePack.parse(M.serializer(), bytes).v
     assertEquals(2, map.size)

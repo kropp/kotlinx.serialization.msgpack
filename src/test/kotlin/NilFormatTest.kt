@@ -1,5 +1,5 @@
 import kotlinx.serialization.*
-import org.junit.*
+import kotlin.test.*
 
 class NilFormatTest {
   private val bytes = byteArray(0x81, 0xa3, 0x6e, 0x69, 0x6c, 0xc0)
@@ -10,12 +10,12 @@ class NilFormatTest {
   @Test
   fun testNilRead() {
     val hw = MessagePack.parse(Nil.serializer(), bytes)
-    Assert.assertEquals(hw.nil, null)
+    assertEquals(hw.nil, null)
   }
 
   @Test
   fun testNilWrite() {
     val packed = MessagePack.pack(Nil.serializer(), Nil(nil = null))
-    Assert.assertThat(packed, IsByteArrayEqual(bytes))
+    assertByteArrayEquals(bytes, packed)
   }
 }
