@@ -3,7 +3,7 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import java.io.*
 
-class MessagePackInput(private val input: InputStream) : AbstractDecoder() {
+class MessagePackDecoder(private val input: InputStream) : AbstractDecoder() {
   private var count: Int = 0
   private var left: Int = 0
   private var kind: StructureKind = StructureKind.CLASS

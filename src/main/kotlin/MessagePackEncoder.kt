@@ -2,7 +2,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 
-class MessagePackOutput(initial: ByteArray = ByteArray(0)) : AbstractEncoder() {
+class MessagePackEncoder(initial: ByteArray = ByteArray(0)) : AbstractEncoder() {
   internal var bytes: ByteArray = initial
     private set
 
