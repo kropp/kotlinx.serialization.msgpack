@@ -1,36 +1,30 @@
+import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import java.io.*
 
-class MessagePackDecoder(private val input: InputStream) : AbstractDecoder() {
-  private var count: Int = 0
-  private var left: Int = 0
-  private var kind: StructureKind = StructureKind.CLASS
+class MessagePackDecoder private constructor(private val input: InputStream, private val count: Int) : AbstractDecoder() {
+  private var remaining: Int = count
+
+  constructor(input: InputStream): this(input, 0)
 
   override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
     val type = input.read()
-    when {
-      type == 0xdc -> {
-        kind = StructureKind.LIST
-        count = input.readExactNBytes(2).toShort()
+    return when {
+      type == 0xdc -> MessagePackDecoder(input, input.readExactNBytes(2).toShort())
+      type == 0xdd -> MessagePackDecoder(input, input.readExactNBytes(4).toInt())
+      type and 0x90 == 0x90 -> MessagePackDecoder(input, type - 0x90)
+      type and 0x80 == 0x80 -> {
+        var c = type - 0x80
+        if (descriptor.kind == StructureKind.MAP) {
+          // map like structures stored as key-value pairs,
+          // so each entry is decoded as two consecutive elements
+          c *= 2
+        }
+        MessagePackDecoder(input, c)
       }
-      type == 0xdd -> {
-        kind = StructureKind.LIST
-        count = input.readExactNBytes(4).toInt()
-      }
-      type and 0x90 == 0x90 -> {
-        kind = StructureKind.LIST
-        count = type - 0x90
-      }
-      type and 0x80 == 0x80 -> count = type - 0x80
+      else -> throw SerializationException("Unexpected structure type: $type")
     }
-    if (descriptor.kind == StructureKind.MAP) {
-      // map like structures stored as key-value pairs,
-      // so each entry is decoded as two consecutive elements
-      count *= 2
-    }
-    left = count
-    return this
   }
 
   override fun decodeValue(): Any {
@@ -60,10 +54,10 @@ class MessagePackDecoder(private val input: InputStream) : AbstractDecoder() {
   }
 
   override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
-    if (left <= 0) return CompositeDecoder.DECODE_DONE
-    left--
+    if (remaining <= 0) return CompositeDecoder.DECODE_DONE
+    remaining--
     if (descriptor.kind == StructureKind.LIST || descriptor.kind == StructureKind.MAP) {
-      return count - left - 1
+      return count - remaining - 1
     }
     val name = readNext() as String
     return descriptor.getElementIndex(name)

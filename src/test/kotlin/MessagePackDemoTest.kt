@@ -36,5 +36,19 @@ class MessagePackDemoTest {
     val packed = MessagePack.encode(HW.serializer(), HW(hello = "world"))
     assertByteArrayEquals(helloWorldBytes, packed)
   }
+
+  @Test
+  fun nested() {
+    @Serializable
+    class Nested(val many: Array<Int>, val demo: Demo)
+
+    val bytes = bytes(0x82, 0xa4, "many", 0x90, 0xa4, "demo", 0x82, 0xa7, "compact", 0xc3, 0xa6, "schema", 0x00)
+
+    val nested = MessagePack.decode(Nested.serializer(), bytes)
+    assertEquals(0, nested.many.size)
+    assertEquals(true, nested.demo.compact)
+    assertEquals(0, nested.demo.schema)
+    assertByteArrayEquals(bytes, MessagePack.encode(Nested.serializer(), nested))
+  }
 }
 
