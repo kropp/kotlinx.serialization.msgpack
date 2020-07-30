@@ -1,5 +1,6 @@
 import kotlinx.serialization.*
-import kotlinx.serialization.builtins.*
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 import java.io.*
 
 class MessagePackInput(private val input: InputStream) : AbstractDecoder() {
@@ -62,7 +63,7 @@ class MessagePackInput(private val input: InputStream) : AbstractDecoder() {
   }
 
   override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
-    if (left <= 0) return CompositeDecoder.READ_DONE
+    if (left <= 0) return CompositeDecoder.DECODE_DONE
     left--
     if (descriptor.kind == StructureKind.LIST || descriptor.kind == StructureKind.MAP) {
       return count - left - 1

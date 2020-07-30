@@ -1,5 +1,6 @@
 import kotlinx.serialization.*
-import kotlinx.serialization.builtins.*
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 
 class MessagePackOutput(initial: ByteArray = ByteArray(0)) : AbstractEncoder() {
   internal var bytes: ByteArray = initial
@@ -40,7 +41,7 @@ class MessagePackOutput(initial: ByteArray = ByteArray(0)) : AbstractEncoder() {
   }
 
   override fun encodeString(value: String) {
-    val utf8Bytes = value.toUtf8Bytes()
+    val utf8Bytes = value.toByteArray(Charsets.UTF_8)
     bytes += when {
       utf8Bytes.size <    32 -> ByteArray(1) { (0xa0 + utf8Bytes.size).toByte() }
       utf8Bytes.size <   256 -> byteArray(0xd9) + utf8Bytes.size.toByte()

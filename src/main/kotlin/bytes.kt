@@ -16,7 +16,7 @@ internal fun InputStream.readExactNBytes(bytes: Int): ByteArray {
 fun byteArray(vararg data: Any) = data.map { d ->
   when(d) {
     is Int -> ByteArray(1) { d.toByte() }
-    is String -> d.toUtf8Bytes()
+    is String -> d.toByteArray(Charsets.UTF_8)
     else -> ByteArray(0)
   }
 }.fold(ByteArray(0)) { acc, it -> acc + it }
