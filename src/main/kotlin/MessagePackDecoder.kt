@@ -1,4 +1,3 @@
-import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import java.io.*
@@ -8,7 +7,7 @@ class MessagePackDecoder(private val input: InputStream) : AbstractDecoder() {
   private var left: Int = 0
   private var kind: StructureKind = StructureKind.CLASS
 
-  override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
+  override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
     val type = input.read()
     when {
       type == 0xdc -> {
@@ -39,8 +38,7 @@ class MessagePackDecoder(private val input: InputStream) : AbstractDecoder() {
   }
 
   override fun decodeByte(): Byte {
-    val v = decodeValue()
-    return when (v) {
+    return when (val v = decodeValue()) {
       is Byte -> v
       is Int -> v.toByte()
       is Long -> v.toByte()
@@ -49,8 +47,7 @@ class MessagePackDecoder(private val input: InputStream) : AbstractDecoder() {
   }
 
   override fun decodeLong(): Long {
-    val v = decodeValue()
-    return when (v) {
+    return when (val v = decodeValue()) {
       is Byte -> v.toLong()
       is Int -> v.toLong()
       is Long -> v

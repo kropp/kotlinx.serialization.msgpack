@@ -1,4 +1,3 @@
-import kotlinx.serialization.*
 import java.io.*
 
 // from kotlinx.serialization.internal
@@ -13,7 +12,7 @@ internal fun InputStream.readExactNBytes(bytes: Int): ByteArray {
   return array
 }
 
-fun byteArray(vararg data: Any) = data.map { d ->
+fun bytes(vararg data: Any) = data.map { d ->
   when(d) {
     is Int -> ByteArray(1) { d.toByte() }
     is String -> d.toByteArray(Charsets.UTF_8)

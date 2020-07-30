@@ -6,7 +6,7 @@ class MapFormatTest {
 
   @Test
   fun empty() {
-    val bytes = byteArray(0x81, 0xa1, 0x76, 0x80)
+    val bytes = bytes(0x81, 0xa1, 0x76, 0x80)
 
     assertByteArrayEquals(bytes, MessagePack.pack(M.serializer(), M(emptyMap())))
 
@@ -15,7 +15,7 @@ class MapFormatTest {
 
   @Test
   fun items() {
-    val bytes = byteArray(0x81, 0xa1, 0x76, 0x82, 0xa1, 0x61, 0xc3, 0xa1, 0x62, 0xc2)
+    val bytes = bytes(0x81, 0xa1, 0x76, 0x82, 0xa1, 0x61, 0xc3, 0xa1, 0x62, 0xc2)
 
     assertByteArrayEquals(bytes, MessagePack.pack(M.serializer(), M(mapOf("a" to true, "b" to false))))
 
