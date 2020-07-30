@@ -24,7 +24,7 @@ class ArrayFormatTest {
 
   private fun assertArrayEncodeDecode(arr: Array<Int>, bytes: ByteArray) {
     val encoded = bytes(0x81, 0xa1, 0x76) + bytes
-    assertByteArrayEquals(encoded, MessagePack.pack(A.serializer(), A(arr)))
-    assertTrue(arr.contentEquals(MessagePack.parse(A.serializer(), encoded).v))
+    assertByteArrayEquals(encoded, MessagePack.encode(A.serializer(), A(arr)))
+    assertTrue(arr.contentEquals(MessagePack.decode(A.serializer(), encoded).v))
   }
 }

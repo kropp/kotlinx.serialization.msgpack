@@ -9,14 +9,14 @@ class BoolFormatTest {
 
   @Test
   fun testRead() {
-    val bool = MessagePack.parse(Bool.serializer(), bytes)
+    val bool = MessagePack.decode(Bool.serializer(), bytes)
     assertEquals(true, bool.`true`)
     assertEquals(false, bool.`false`)
   }
 
   @Test
   fun testWrite() {
-    val packed = MessagePack.pack(Bool.serializer(), Bool(`true` = true, `false` = false))
+    val packed = MessagePack.encode(Bool.serializer(), Bool(`true` = true, `false` = false))
     assertByteArrayEquals(packed, bytes)
   }
 }

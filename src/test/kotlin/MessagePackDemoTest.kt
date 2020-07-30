@@ -9,14 +9,14 @@ class MessagePackDemoTest {
 
   @Test
   fun testMsgPackDeserialization() {
-    val demo = MessagePack.parse(Demo.serializer(), demoBytes)
+    val demo = MessagePack.decode(Demo.serializer(), demoBytes)
     assertEquals(demo.compact, true)
     assertEquals(demo.schema, 0)
   }
 
   @Test
   fun testMsgPackSerialization() {
-    val packed = MessagePack.pack(Demo.serializer(), Demo(true, 0))
+    val packed = MessagePack.encode(Demo.serializer(), Demo(true, 0))
     assertByteArrayEquals(demoBytes, packed)
   }
 
@@ -27,13 +27,13 @@ class MessagePackDemoTest {
 
   @Test
   fun testHelloWorldRead() {
-    val hw = MessagePack.parse(HW.serializer(), helloWorldBytes)
+    val hw = MessagePack.decode(HW.serializer(), helloWorldBytes)
     assertEquals(hw.hello, "world")
   }
 
   @Test
   fun testHelloWorldWrite() {
-    val packed = MessagePack.pack(HW.serializer(), HW(hello = "world"))
+    val packed = MessagePack.encode(HW.serializer(), HW(hello = "world"))
     assertByteArrayEquals(helloWorldBytes, packed)
   }
 }

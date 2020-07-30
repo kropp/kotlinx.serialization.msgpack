@@ -12,8 +12,8 @@ class FloatFormatTest {
 
   @Test
   fun testRead() {
-    val p = MessagePack.parse(FD.serializer(), plusBytes)
-    val m = MessagePack.parse(FD.serializer(), minusBytes)
+    val p = MessagePack.decode(FD.serializer(), plusBytes)
+    val m = MessagePack.decode(FD.serializer(), minusBytes)
 
     assertEquals(0.5f, p.float)
     assertDoubleEquals(0.5, p.double, epsilon)
@@ -23,7 +23,7 @@ class FloatFormatTest {
 
   @Test
   fun testWrite() {
-    assertByteArrayEquals(plusBytes, MessagePack.pack(FD.serializer(), FD(0.5f, 0.5)))
-    assertByteArrayEquals(minusBytes, MessagePack.pack(FD.serializer(), FD(-0.5f, -0.5)))
+    assertByteArrayEquals(plusBytes, MessagePack.encode(FD.serializer(), FD(0.5f, 0.5)))
+    assertByteArrayEquals(minusBytes, MessagePack.encode(FD.serializer(), FD(-0.5f, -0.5)))
   }
 }

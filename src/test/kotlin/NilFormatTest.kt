@@ -9,13 +9,13 @@ class NilFormatTest {
 
   @Test
   fun testNilRead() {
-    val hw = MessagePack.parse(Nil.serializer(), bytes)
+    val hw = MessagePack.decode(Nil.serializer(), bytes)
     assertEquals(hw.nil, null)
   }
 
   @Test
   fun testNilWrite() {
-    val packed = MessagePack.pack(Nil.serializer(), Nil(nil = null))
+    val packed = MessagePack.encode(Nil.serializer(), Nil(nil = null))
     assertByteArrayEquals(bytes, packed)
   }
 }
