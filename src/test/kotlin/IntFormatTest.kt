@@ -77,20 +77,65 @@ class IntFormatTest {
     assertEquals(256.toLong() , MessagePack.decode( Long.serializer(), bytes))
   }
 
-/*
   @Test
   fun test65535() {
-    val bytes = bytes(0xd1, 0xff, 0xff)
+    val bytes = bytes(0xd2, 0x00, 0x00, 0xff, 0xff)
 
-    assertByteArrayEquals(bytes, MessagePack.encode(Short.serializer(), 65535))
     assertByteArrayEquals(bytes, MessagePack.encode(  Int.serializer(), 65535))
     assertByteArrayEquals(bytes, MessagePack.encode( Long.serializer(), 65535))
+
+    assertEquals(65535          , MessagePack.decode(  Int.serializer(), bytes))
+    assertEquals(65535.toLong() , MessagePack.decode( Long.serializer(), bytes))
+  }
+
+  @Test
+  fun test65536() {
+    val bytes = bytes(0xd2, 0x00, 0x01, 0x00, 0x00)
+
+    assertByteArrayEquals(bytes, MessagePack.encode(  Int.serializer(), 65536))
+    assertByteArrayEquals(bytes, MessagePack.encode( Long.serializer(), 65536))
+
+    assertEquals(65536          , MessagePack.decode(  Int.serializer(), bytes))
+    assertEquals(65536.toLong() , MessagePack.decode( Long.serializer(), bytes))
+  }
+
+  // Unsigned types (UByte, UShort, UInt, ULong) are implemented as inline classes
+  // Inline classes don't have serializers yet
+  // See https://github.com/Kotlin/kotlinx.serialization/issues/259
+  // All tests for unsigned integers only verify decoders for now.
+  @Test
+  fun test128u() {
+    val bytes = bytes(0xcc, 0x80)
+
+    assertEquals(128          , MessagePack.decode(  Int.serializer(), bytes))
+    assertEquals(128.toLong() , MessagePack.decode( Long.serializer(), bytes))
+  }
+
+  @Test
+  fun test255u() {
+    val bytes = bytes(0xcc, 0xff)
+
+    assertEquals(255          , MessagePack.decode(  Int.serializer(), bytes))
+    assertEquals(255.toLong() , MessagePack.decode( Long.serializer(), bytes))
+  }
+
+  @Test
+  fun test256u() {
+    val bytes = bytes(0xcd, 0x01, 0x00)
+
+    assertEquals(256.toShort(), MessagePack.decode(Short.serializer(), bytes))
+    assertEquals(256          , MessagePack.decode(  Int.serializer(), bytes))
+    assertEquals(256.toLong() , MessagePack.decode( Long.serializer(), bytes))
+  }
+
+  @Test
+  fun test65535u() {
+    val bytes = bytes(0xcd, 0xff, 0xff)
 
     assertEquals(65535.toShort(), MessagePack.decode(Short.serializer(), bytes))
     assertEquals(65535          , MessagePack.decode(  Int.serializer(), bytes))
     assertEquals(65535.toLong() , MessagePack.decode( Long.serializer(), bytes))
   }
-*/
 
   @Test
   fun intMaxValue() {

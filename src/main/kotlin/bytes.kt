@@ -29,11 +29,21 @@ fun ByteArray.toShort() =
     (get(0).toInt() and 0xFF shl 8) +
     (get(1).toInt() and 0xFF)
 
+fun ByteArray.toUShort() =
+    (get(0).toUInt() and 0xFFu shl 8) +
+    (get(1).toUInt() and 0xFFu)
+
 fun ByteArray.toInt() =
     (get(0).toInt() and 0xFF shl 24) +
     (get(1).toInt() and 0xFF shl 16) +
     (get(2).toInt() and 0xFF shl 8) +
     (get(3).toInt() and 0xFF)
+
+fun ByteArray.toUInt() =
+    (get(0).toUInt() and 0xFFu shl 24) +
+    (get(1).toUInt() and 0xFFu shl 16) +
+    (get(2).toUInt() and 0xFFu shl 8) +
+    (get(3).toUInt() and 0xFFu)
 
 fun ByteArray.toLong() =
     (get(0).toLong() and 0xFF shl 56) +
@@ -44,3 +54,13 @@ fun ByteArray.toLong() =
     (get(5).toLong() and 0xFF shl 16) +
     (get(6).toLong() and 0xFF shl 8) +
     (get(7).toLong() and 0xFF)
+
+fun ByteArray.toULong() =
+    (get(0).toULong() and 0xFFu shl 56) +
+    (get(1).toULong() and 0xFFu shl 48) +
+    (get(2).toULong() and 0xFFu shl 40) +
+    (get(3).toULong() and 0xFFu shl 32) +
+    (get(4).toULong() and 0xFFu shl 24) +
+    (get(5).toULong() and 0xFFu shl 16) +
+    (get(6).toULong() and 0xFFu shl 8) +
+    (get(7).toULong() and 0xFFu)

@@ -31,41 +31,45 @@ class MessagePackDecoder private constructor(private val input: InputStream, pri
     return readNext()!!
   }
 
-  override fun decodeByte(): Byte {
-    val v = decodeValue()
-    return if (v is Number) {
-      v.toByte()
-    } else {
-      v as Byte
-    }
-  }
+  override fun decodeByte(): Byte =
+      when (val v = decodeValue()) {
+        is Number -> v.toByte()
+        is UByte -> v.toByte()
+        is UByte -> v.toByte()
+        is UInt -> v.toByte()
+        is ULong -> v.toByte()
+        else -> v as Byte
+      }
 
-  override fun decodeShort(): Short {
-    val v = decodeValue()
-    return if (v is Number) {
-      v.toShort()
-    } else {
-      v as Short
-    }
-  }
+  override fun decodeShort(): Short =
+      when (val v = decodeValue()) {
+        is Number -> v.toShort()
+        is UByte -> v.toShort()
+        is UShort -> v.toShort()
+        is UInt -> v.toShort()
+        is ULong -> v.toShort()
+        else -> v as Short
+      }
 
-  override fun decodeInt(): Int {
-    val v = decodeValue()
-    return if (v is Number) {
-      v.toInt()
-    } else {
-      v as Int
-    }
-  }
+  override fun decodeInt(): Int =
+      when (val v = decodeValue()) {
+        is Number -> v.toInt()
+        is UByte -> v.toInt()
+        is UInt -> v.toInt()
+        is UInt -> v.toInt()
+        is ULong -> v.toInt()
+        else -> v as Int
+      }
 
-  override fun decodeLong(): Long {
-    val v = decodeValue()
-    return if (v is Number) {
-      v.toLong()
-    } else {
-      v as Long
-    }
-  }
+  override fun decodeLong(): Long =
+      when (val v = decodeValue()) {
+        is Number -> v.toLong()
+        is UByte -> v.toLong()
+        is ULong -> v.toLong()
+        is UInt -> v.toLong()
+        is ULong -> v.toLong()
+        else -> v as Long
+      }
 
   override fun decodeCollectionSize(descriptor: SerialDescriptor): Int {
     return count
@@ -109,10 +113,10 @@ class MessagePackDecoder private constructor(private val input: InputStream, pri
       }
       0xca -> return Float.fromBits(input.readExactNBytes(4).toInt())
       0xcb -> return Double.fromBits(input.readExactNBytes(8).toLong())
-      0xcc -> return input.readExactNBytes(1)[0].toInt()
-      0xcd -> return input.readExactNBytes(2).toShort()
-      0xce -> return input.readExactNBytes(4).toInt()
-      0xcf -> return input.readExactNBytes(8).toLong()
+      0xcc -> return input.readExactNBytes(1)[0].toUByte()
+      0xcd -> return input.readExactNBytes(2).toUShort()
+      0xce -> return input.readExactNBytes(4).toUInt()
+      0xcf -> return input.readExactNBytes(8).toULong()
       0xd0 -> return input.readExactNBytes(1)[0].toInt()
       0xd1 -> return input.readExactNBytes(2).toShort()
       0xd2 -> return input.readExactNBytes(4).toInt()
