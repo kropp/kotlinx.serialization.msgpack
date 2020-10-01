@@ -14,13 +14,15 @@ internal fun InputStream.readExactNBytes(bytes: Int): ByteArray {
 
 fun bytes(vararg data: Any) = data.map { d ->
   when(d) {
+    is Byte -> ByteArray(1) { d }
     is Int -> ByteArray(1) { d.toByte() }
     is String -> d.toByteArray(Charsets.UTF_8)
     else -> ByteArray(0)
   }
 }.fold(ByteArray(0)) { acc, it -> acc + it }
 
-fun Int.toByteArray() = ByteArray(4) { ((this shr (7-it) * 8) and 0xFF).toByte() }
+fun Short.toByteArray() = ByteArray(2) { ((this.toInt() shr (1-it) * 8) and 0xFF).toByte() }
+fun Int.toByteArray() = ByteArray(4) { ((this shr (3-it) * 8) and 0xFF).toByte() }
 fun Long.toByteArray() = ByteArray(8) { ((this shr (7-it) * 8) and 0xFF).toByte() }
 
 fun ByteArray.toShort() =

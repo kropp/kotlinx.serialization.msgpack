@@ -32,20 +32,38 @@ class MessagePackDecoder private constructor(private val input: InputStream, pri
   }
 
   override fun decodeByte(): Byte {
-    return when (val v = decodeValue()) {
-      is Byte -> v
-      is Int -> v.toByte()
-      is Long -> v.toByte()
-      else -> v as Byte
+    val v = decodeValue()
+    return if (v is Number) {
+      v.toByte()
+    } else {
+      v as Byte
+    }
+  }
+
+  override fun decodeShort(): Short {
+    val v = decodeValue()
+    return if (v is Number) {
+      v.toShort()
+    } else {
+      v as Short
+    }
+  }
+
+  override fun decodeInt(): Int {
+    val v = decodeValue()
+    return if (v is Number) {
+      v.toInt()
+    } else {
+      v as Int
     }
   }
 
   override fun decodeLong(): Long {
-    return when (val v = decodeValue()) {
-      is Byte -> v.toLong()
-      is Int -> v.toLong()
-      is Long -> v
-      else -> v as Long
+    val v = decodeValue()
+    return if (v is Number) {
+      v.toLong()
+    } else {
+      v as Long
     }
   }
 

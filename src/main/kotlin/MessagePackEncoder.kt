@@ -52,15 +52,24 @@ class MessagePackEncoder(private val stream: OutputStream) : AbstractEncoder() {
     stream.write(ByteArray(1) { value })
   }
 
+  override fun encodeShort(value: Short) {
+    if (value <= Byte.MAX_VALUE) return encodeByte(value.toByte())
+    stream.write(0xd1)
+    stream.write(value.toByteArray())
+  }
+
   override fun encodeInt(value: Int) {
     if (value <= Byte.MAX_VALUE) return encodeByte(value.toByte())
+    if (value <= Short.MAX_VALUE) return encodeShort(value.toShort())
+    stream.write(0xd2)
     stream.write(value.toByteArray())
   }
 
   override fun encodeLong(value: Long) {
     if (value <= Byte.MAX_VALUE) return encodeByte(value.toByte())
+    if (value <= Short.MAX_VALUE) return encodeShort(value.toShort())
     if (value <= Int.MAX_VALUE) return encodeInt(value.toInt())
-    stream.write(bytes(0xd3))
+    stream.write(0xd3)
     stream.write(value.toByteArray())
   }
 
