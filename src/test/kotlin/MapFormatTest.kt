@@ -1,3 +1,4 @@
+import com.github.kropp.messagepack.*
 import kotlinx.serialization.*
 import kotlin.test.*
 

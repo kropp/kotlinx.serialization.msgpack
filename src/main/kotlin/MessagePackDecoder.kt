@@ -1,3 +1,5 @@
+package com.github.kropp.messagepack
+
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*

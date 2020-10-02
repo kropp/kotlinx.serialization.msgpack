@@ -1,3 +1,5 @@
+package com.github.kropp.messagepack
+
 import kotlinx.serialization.*
 import java.io.*
 
